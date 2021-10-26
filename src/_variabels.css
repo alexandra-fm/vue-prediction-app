@@ -1,0 +1,28 @@
+:root {
+  --main-color: rgba(225, 225, 225, 0.6);
+  --accent-color: rgb(246, 200, 102);
+  --additional-color: rgba(225, 225, 225, 0.9);
+  --small-font-size: 16px;
+  --small-line-height: 18.75px;
+  --small-font-weight: 300;
+  --normal-font-weight: 400;
+  --normal-font-size: 25px;
+  --normal-line-height: 35px;
+  --button-font-size: 20px;
+  --button-line-height: 24px;
+  --button-height: 69px;
+  --button-width: 311px;
+  --button-border-radius: 50px;
+  --button-main-gradient: linear-gradient(
+    90deg,
+    rgba(246, 200, 102, 0.9),
+    rgba(254, 173, 53, 0.9)
+  );
+  --button-glint-gradient: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0), 
+    rgba(255, 255, 255, 0.29), 
+    rgba(255, 255, 255, 0)
+    );
+  
+}
