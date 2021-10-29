@@ -1,13 +1,11 @@
 <template>
   <div id="app">
-    <header class="header">
-      <h1 class="header__title">Лучшие астрологи и экстрасенсы Румынии</h1>
-    </header>
+    <section class="greeting">
+      <header class="header">
+        <h1 class="header__title">Лучшие астрологи и экстрасенсы Румынии</h1>
+      </header>
 
-    <hr />
-
-    <div class="main-container">
-      <section class="greeting">
+      <div class="main-container">
         <p class="greeting__text">Точность прогноза: 97%</p>
         <div class="container-img">
           <img
@@ -24,6 +22,7 @@
         </h2>
 
         <div class="button__container">
+          <a class="button button-link" href="">N</a>
           <button class="button">Да</button>
           <button class="button">Нет</button>
           <span class="button__subtext">Онлайн предсказание</span>
@@ -41,8 +40,8 @@
             а также предшествующую этому событию причину
           </p>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
 
     <section class="addition">
       <div class="addition__text-container">
@@ -55,14 +54,26 @@
       </div>
     </section>
 
-    <div class="questions__wrapper">
-      <div class="main-container">
-        <section class="questions">
-          <h2 class="questions__title">Боитесь ли вы умереть?</h2>
+    <section v-if="this.questions.length" class="questions">
+      <div v-if="this.currentQuestion === 0" class="questions__wrapper">
+        <div class="main-container">
+          <h2 class="questions__title">
+            {{ this.questions[this.currentQuestion].title }}
+          </h2>
           <div class="button__container button__container_small-mt">
-            <button class="button">Да</button>
-            <button class="button">Нет</button>
-            <span class="button__subtext questions__number">Вопрос 1-5</span>
+            <button
+              class="button"
+              @click="turnToNextQuestion"
+              v-for="option of questions[this.currentQuestion].answersOptions"
+              :key="option"
+            >
+              {{ option }}
+            </button>
+            <span class="button__subtext questions__number"
+              >Вопрос {{ this.questions[this.currentQuestion].id }}-{{
+                this.questions.length
+              }}
+            </span>
           </div>
           <div class="questions__statement">
             <img
@@ -71,8 +82,7 @@
               alt="Руна"
             />
             <p class="questions__statement-text">
-              Вы, конечно, умрете. <br />
-              И все, с кем вы знакомы, <br />тоже однажды умрут.
+              {{ this.questions[this.currentQuestion].statement[0] }}
             </p>
             <img
               class="questions__statement-img"
@@ -80,37 +90,143 @@
               alt="Руна"
             />
           </div>
-        </section>
+        </div>
+        <img
+          class="questions__img-bg moon-img"
+          src="./assets/moon.svg"
+          alt="Луна"
+        />
+        <img
+          class="questions__img-bg eye-img"
+          src="./assets/eye.svg"
+          alt="Глаз"
+        />
       </div>
-      <img
-        class="questions__img-bg moon-img"
-        src="./assets/moon.svg"
-        alt="Луна"
-      />
-      <img
-        class="questions__img-bg eye-img"
-        src="./assets/eye.svg"
-        alt="Глаз"
-      />
-    </div>
+      <div
+        v-else-if="
+          this.currentQuestion !== 0 &&
+          this.currentQuestion + 1 <= this.questions.length
+        "
+      >
+        <div class="questions__statement questions__statement-header">
+          <p class="questions__statement-text questions__statement-text-header">
+            {{ this.questions[this.currentQuestion].statement[0] }}
+          </p>
+        </div>
+
+        <div class="main-container">
+          <h2 class="questions__title">
+            {{ this.questions[this.currentQuestion].title }}
+          </h2>
+          <div class="button__container button__container_small-mt">
+            <button
+              class="button"
+              @click="turnToNextQuestion"
+              v-for="option of questions[this.currentQuestion].answersOptions"
+              :key="option"
+            >
+              {{ option }}
+            </button>
+            <span class="button__subtext questions__number"
+              >Вопрос {{ this.questions[this.currentQuestion].id }}-{{
+                this.questions.length
+              }}</span
+            >
+            <CustomSelect />
+          </div>
+        </div>
+        <div class="questions__wrapper">
+          <img
+            class="questions__img-bg moon-img"
+            src="./assets/moon.svg"
+            alt="Луна"
+          />
+          <img
+            class="questions__img-bg eye-img"
+            src="./assets/eye.svg"
+            alt="Глаз"
+          />
+        </div>
+      </div>
+    </section>
+    <section
+      class="button__subtext"
+      v-if="this.currentQuestion + 1 > this.questions.length"
+    >
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora, qui
+        facere. Aspernatur nesciunt quasi iste hic suscipit nemo aut repellendus
+        distinctio, ipsam ipsum animi nihil unde commodi! Cum, exercitationem
+        enim?
+      </p>
+    </section>
   </div>
 </template>
 
 <script>
+import CustomSelect from "@/components/CustomSelect"
+
 export default {
   name: "App",
+  components: {
+    CustomSelect,
+  },
   data() {
     return {
+      currentQuestion: 1,
       questions: [
         {
+          id: 1,
           title: "Боитесь ли вы умереть?",
-          answerFirst: "Да",
-          answerSecond: "Нет",
-          statement: `Вы, конечно, умрете. <br />
-              И все, с кем вы знакомы, <br />тоже однажды умрут.`,
+          answersOptions: ["Да", "Нет"],
+          statement: [
+            "Вы, конечно, умрете. И все, с кем вы знакомы, тоже однажды умрут.",
+          ],
+        },
+        {
+          id: 2,
+          title: "Когда Вы чувствуете себя наиболее комфортно?",
+          answersOptions: ["Утро", "День", "Вечер", "Ночь"],
+          statement: [
+            "Мы расскажем Вам не только подробности вашей смерти, но также поможем Вам избежать этой ужасной даты и продлить вашу жизнь на многие годы.",
+          ],
+        },
+        {
+          id: 3,
+          title: "Укажите свою дату рождения:",
+          answersOptions: ["Далее"],
+          selectOptions: ["День", "Месяц", "Год"],
+          statement: [
+            "Уже совсем скоро Вы узнаете много интересного о своем будущем!",
+          ],
+        },
+        {
+          id: 4,
+          title: "Снятся ли Вам умершие люди?",
+          answersOptions: ["Да", "Нет", "Иногда"],
+          statement: [
+            "Смерть родного человека – одно из тяжелейших испытаний в жизни каждого из нас!",
+          ],
+        },
+        {
+          id: 5,
+          title:
+            "Запись, которую Вы услышите, может шокировать людей с неокрепшей психикой. Вы готовы узнать, что ждет именно Вас?",
+          answersOptions: ["Да", "Затрудняюсь ответить"],
+          statement: [
+            "По вам скучает очень близкий человек, которого больше нет в мире живых.",
+            "По вам скучает очень близкий человек, которого больше нет в мире живых. Возможно это дедушка или бабушка.",
+            "По вам скучает очень близкий человек, которого больше нет в мире живых. Возможно это кто-то из Ваших родителей.",
+          ],
         },
       ],
+      answers: [],
     }
+  },
+  methods: {
+    turnToNextQuestion() {
+      this.currentQuestion++
+    },
   },
 }
 </script>
@@ -143,21 +259,20 @@ body {
 #app::before {
   content: "";
   width: 100%;
-  opacity: 0.9;
-  background: no-repeat center / 100% url(assets/bg_blik.png);
-  top: -75%;
-  left: 50%;
-  bottom: 0;
-  right: 0;
+  height: 1090px;
   position: absolute;
+  background: no-repeat center / 120vw url(assets/bg_blik.png);
+  background-position: top;
   z-index: -1;
   transform: translate(-50%);
+  opacity: 0.9;
 }
 .header {
   height: 75px;
   display: flex;
   justify-content: center;
   align-items: center;
+  border-bottom: 1px solid var(--main-color);
 }
 .header__title {
   margin-top: 19px;
@@ -169,17 +284,12 @@ body {
   -webkit-text-stroke: 0.5px rgb(0, 0, 0);
   letter-spacing: var(--small-letter-spacing);
 }
-hr {
-  border-color: var(--main-color);
-}
 .main-container {
   position: relative;
   width: 443px;
 }
-.greeting {
-  margin-top: 7px;
-}
 .greeting__text {
+  margin-top: 7px;
   color: var(--main-color);
   font-size: var(--normal-font-size);
   line-height: var(--normal-line-height);
@@ -220,13 +330,12 @@ hr {
   font-weight: var(--normal-font-weight);
   background: var(--button-main-gradient);
   overflow: hidden;
-
-  /* background: linear-gradient(
-    248.67deg,
-    rgba(255, 255, 255, 0) 30.84%,
-    rgba(255, 255, 255, 0.29) 46.06%,
-    rgba(255, 255, 255, 0) 64.04%
-  ); rgba(246, 200, 102, 0.9) -6.2%,*/
+}
+.button-link {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .button::before {
   content: "";
@@ -312,12 +421,10 @@ hr {
 .questions__wrapper {
   position: relative;
   max-width: 1440px;
-}
-.questions {
-  margin-top: 129px;
   margin-bottom: 153px;
 }
 .questions__title {
+  margin-top: 100px;
   color: var(--accent-color);
   font-size: var(--normal-font-size);
   line-height: var(--normal-line-height);
@@ -327,20 +434,28 @@ hr {
 .button__container_small-mt {
   margin-top: 14px;
 }
-.questions__statement {
-  margin-top: 116px;
+.questions__statement-header {
+  height: 224px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--main-color);
 }
 .questions__statement-text {
+  max-width: 222px;
   font-family: var(--accent-font);
   color: var(--additional-color);
   font-size: var(--normal-font-size);
   line-height: var(--normal-line-height);
   font-weight: var(--normal-font-weight);
 }
+.questions__statement-text-header {
+  max-width: 415px;
+}
 .questions__statement-img {
   height: 17px;
 }
 .questions__statement-img:first-child {
+  margin-top: 116px;
   margin-bottom: 77px;
 }
 .questions__statement-img:last-child {
@@ -360,5 +475,20 @@ hr {
   height: 204px;
   right: -9%;
   bottom: 28.2%;
+}
+.select {
+  position: relative;
+  height: var(--button-height);
+  width: var(--button-width);
+  margin-top: 34px;
+  border-radius: var(--button-border-radius);
+  border: none;
+  cursor: pointer;
+  color: var(--additional-color);
+  font-size: var(--button-font-size);
+  line-height: var(--button-line-height);
+  font-weight: var(--normal-font-weight);
+  background: var(--button-main-gradient);
+  overflow: hidden;
 }
 </style>
