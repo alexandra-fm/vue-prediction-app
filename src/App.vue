@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <section class="greeting">
+    <section id="greeting" class="greeting">
       <header class="header">
         <h1 class="header__title">Лучшие астрологи и экстрасенсы Румынии</h1>
       </header>
@@ -14,7 +14,7 @@
             alt="Девушка"
           />
         </div>
-        <h2 class="greeting__title">
+        <h2 class="title greeting__title">
           Вас беспокоит вопрос о том,<br />
           <span class="greeting__title_uppercase"
             >когда Вы покинете этот Мир и при каких обстоятельствах?
@@ -22,9 +22,8 @@
         </h2>
 
         <div class="button__container">
-          <a class="button button-link" href="">N</a>
-          <button class="button">Да</button>
-          <button class="button">Нет</button>
+          <a class="button button-link" href="#questions">Да</a>
+          <a class="button button-link" href="#addition">Нет</a>
           <span class="button__subtext">Онлайн предсказание</span>
         </div>
 
@@ -43,7 +42,7 @@
       </div>
     </section>
 
-    <section class="addition">
+    <section id="addition" class="addition">
       <div class="addition__text-container">
         <p class="addition__text">
           Многие не верят предсказаниям и мы решили доказать каждому, <br />
@@ -54,7 +53,11 @@
       </div>
     </section>
 
-    <section v-if="this.questions.length" class="questions">
+    <section
+      id="questions"
+      v-if="this.currentQuestion + 1 < this.questions.length"
+      class="questions"
+    >
       <div v-if="this.currentQuestion === 0" class="questions__wrapper">
         <div class="main-container">
           <h2 class="questions__title">
@@ -118,6 +121,19 @@
           <h2 class="questions__title">
             {{ this.questions[this.currentQuestion].title }}
           </h2>
+          <div
+            v-show="this.questions[this.currentQuestion].isDatepicker"
+            class="datepicker__container"
+          >
+            <div class="input__container">
+              <input
+                class="input"
+                type="text"
+                ref="datepicker"
+                placeholder="Дата рождения"
+              />
+            </div>
+          </div>
           <div class="button__container button__container_small-mt">
             <button
               class="button"
@@ -127,13 +143,12 @@
             >
               {{ option }}
             </button>
-            <span class="button__subtext questions__number"
-              >Вопрос {{ this.questions[this.currentQuestion].id }}-{{
-                this.questions.length
-              }}</span
-            >
-            <CustomSelect />
           </div>
+          <span class="button__subtext questions__number"
+            >Вопрос {{ this.questions[this.currentQuestion].id }}-{{
+              this.questions.length
+            }}</span
+          >
         </div>
         <div class="questions__wrapper">
           <img
@@ -150,30 +165,53 @@
       </div>
     </section>
     <section
-      class="button__subtext"
-      v-if="this.currentQuestion + 1 > this.questions.length"
+      class="result"
+      v-if="this.currentQuestion + 1 >= this.questions.length"
     >
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora, qui
-        facere. Aspernatur nesciunt quasi iste hic suscipit nemo aut repellendus
-        distinctio, ipsam ipsum animi nihil unde commodi! Cum, exercitationem
-        enim?
+      <div class="main-container">
+        <h2 class="title title__result">
+          Спасибо за Ваши ответы! Мы подготовили для Вас персональную аудио
+          запись с Вашим прогнозом.
+        </h2>
+        <div class="result__container">
+          <p class="result__text result__text_accent">
+            Первое значимое событие может произойти уже
+            {{ tomorrowDay }},
+            <span class="result__text"
+              >вам надо быть готовым, что бы последствия не оказались
+              необратимыми.
+            </span>
+          </p>
+        </div>
+        <p class="result__subtext">
+          Нажмите на кнопку ниже прямо сейчас и наберите наш номер телефона.
+          Прослушайте важную информацию!
+        </p>
+        <div class="button__container">
+          <a
+            href="#greeting"
+            @click="resetResult"
+            class="button button-link button_accent"
+            >Позвонить и прослушать</a
+          >
+        </div>
+      </div>
+      <p class="result__footer">
+        TERMENI SI CONDITII: ACESTA ESTE UN SERVICIU DE DIVERTISMENT. PRIN
+        FOLOSIREA LUI DECLARATI CA AVETI 18 ANI IMPLINITI,
       </p>
     </section>
   </div>
 </template>
 
 <script>
-import CustomSelect from "@/components/CustomSelect"
-
+//v-if="this.currentQuestion + 1 > this.questions.length"
 export default {
   name: "App",
-  components: {
-    CustomSelect,
-  },
   data() {
     return {
-      currentQuestion: 1,
+      tomorrowDay: null,
+      currentQuestion: 0,
       questions: [
         {
           id: 1,
@@ -195,10 +233,10 @@ export default {
           id: 3,
           title: "Укажите свою дату рождения:",
           answersOptions: ["Далее"],
-          selectOptions: ["День", "Месяц", "Год"],
           statement: [
             "Уже совсем скоро Вы узнаете много интересного о своем будущем!",
           ],
+          isDatepicker: true,
         },
         {
           id: 4,
@@ -220,12 +258,82 @@ export default {
           ],
         },
       ],
-      answers: [],
+      answers: [
+        {
+          dateOfBirth: null,
+        },
+      ],
     }
   },
+  mounted() {
+    this.setTomorrow()
+  },
+  beforeUpdate() {
+    let currentYear = new Date().getFullYear()
+    this.date = window.M.Datepicker.init(this.$refs.datepicker, {
+      format: "dd.mm.yyyy",
+      yearRange: [1920, currentYear],
+      i18n: {
+        cancel: "Отмена",
+        clear: "Очистить",
+        weekdays: [
+          "Воскресенье",
+          "Понедельник",
+          "Вторник",
+          "Среда",
+          "Четверг",
+          "Пятница",
+          "Суббота",
+        ],
+        weekdaysShort: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+        weekdaysAbbrev: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+        months: [
+          "Январь",
+          "Февраль",
+          "Март",
+          "Апрель",
+          "Май",
+          "Июнь",
+          "Июль",
+          "Август",
+          "Сентябрь",
+          "Октябрь",
+          "Ноябрь",
+          "Декабрь",
+        ],
+      },
+      monthsShort: [
+        "Янв",
+        "Фев",
+        "Мар",
+        "Апр",
+        "Май",
+        "Июн",
+        "Июл",
+        "Авг",
+        "Сен",
+        "Окт",
+        "Ноя",
+        "Дек",
+      ],
+    })
+  },
   methods: {
+    resetResult() {
+      this.currentQuestion = 0
+    },
     turnToNextQuestion() {
       this.currentQuestion++
+      console.log(this.currentQuestion)
+    },
+    setTomorrow() {
+      let today = new Date()
+      let tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
+      let dayTomorrow =
+        tomorrow.getDate() > 10 ? tomorrow.getDate() : `0` + tomorrow.getDate()
+      let monthTomorrow = tomorrow.getMonth() + 1
+      let yearTomorrow = tomorrow.getFullYear()
+      this.tomorrowDay = `${dayTomorrow}.${monthTomorrow}.${yearTomorrow}`
     },
   },
 }
@@ -235,6 +343,7 @@ export default {
 @import url("https://fonts.googleapis.com/css2?family=Bad+Script&family=Roboto:wght@300;400&display=swap");
 @import "./_variabels.css";
 @import "./_animation.css";
+@import "~materialize-css/dist/css/materialize.min.css";
 
 * {
   box-sizing: border-box;
@@ -266,6 +375,13 @@ body {
   z-index: -1;
   transform: translate(-50%);
   opacity: 0.9;
+}
+.input__container {
+  position: relative;
+  height: 200px;
+}
+.datepicker-date-display {
+  display: none;
 }
 .header {
   height: 75px;
@@ -301,7 +417,7 @@ body {
   width: 390px;
   height: 100%;
 }
-.greeting__title {
+.title {
   color: var(--accent-color);
   font-size: var(--normal-font-size);
   line-height: var(--normal-line-height);
@@ -314,6 +430,7 @@ body {
 .button__container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   margin-top: 30px;
 }
 .button {
@@ -418,6 +535,9 @@ body {
 .addition__text_accent {
   color: var(--accent-color) !important;
 }
+.questions {
+  min-height: 1010px;
+}
 .questions__wrapper {
   position: relative;
   max-width: 1440px;
@@ -476,19 +596,111 @@ body {
   right: -9%;
   bottom: 28.2%;
 }
-.select {
-  position: relative;
+.input__container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: var(--button-height);
   width: var(--button-width);
   margin-top: 34px;
   border-radius: var(--button-border-radius);
   border: none;
-  cursor: pointer;
-  color: var(--additional-color);
+  background: var(--select-main-gradient);
+  box-shadow: var(--select-shadow);
+  cursor: pointer !important;
+}
+.datepicker__container {
+  position: relative;
+}
+.input {
+  text-align: center;
+  font-size: var(--button-font-size) !important;
+  line-height: var(--button-line-height) !important;
+  font-weight: var(--normal-font-weight) !important;
+  color: var(--select-color) !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+input[type="text"]:not(.browser-default):focus:not([readonly]) {
+  border: none !important;
+  box-shadow: none !important;
+}
+.input::placeholder {
+  text-align: center;
   font-size: var(--button-font-size);
   line-height: var(--button-line-height);
   font-weight: var(--normal-font-weight);
-  background: var(--button-main-gradient);
-  overflow: hidden;
+  color: var(--select-color) !important;
+}
+.btn-flat,
+.is-today {
+  color: var(--date-accent-color) !important;
+}
+.is-selected {
+  background-color: var(--date-accent-color) !important;
+  color: white !important;
+}
+.month-prev:focus,
+.month-next:focus {
+  background-color: var(--date-accent-color) !important;
+}
+.dropdown-content li > a,
+.dropdown-content li > span {
+  color: var(--date-accent-color) !important;
+}
+.datepicker-modal {
+  top: 25% !important;
+}
+.dropdown-content {
+  top: 2590px !important;
+  height: 350px;
+}
+.result {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 1000px;
+  padding: 50px;
+}
+.title__result {
+  color: var(--additional-color);
+}
+.result__container {
+  position: relative;
+  display: inline-block;
+  margin-top: 40px;
+  padding: 50px;
+  border: var(--main-color) 1px solid;
+}
+.button_accent {
+  background: var(--button-accent-gradient);
+}
+
+.result__text {
+  color: var(--accent-color);
+  font-size: var(--normal-font-size);
+  line-height: var(--normal-line-height);
+  font-weight: var(--normal-font-weight);
+  letter-spacing: var(--additiona-letter-spacing);
+}
+.result__text_accent {
+  font-weight: var(--bold-font-weight);
+}
+.result__subtext {
+  margin-top: 50px;
+  color: var(--additional-color);
+  font-size: var(--normal-font-size);
+  line-height: var(--normal-line-height);
+  font-weight: var(--normal-font-weight);
+  letter-spacing: var(--negative-letter-spacing);
+}
+.result__footer {
+  color: var(--main-color);
+  font-size: var(--small-font-size);
+  line-height: var(--small-line-height);
+  font-weight: var(--small-font-weight);
+  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  -webkit-text-stroke: 0.5px rgb(0, 0, 0);
+  letter-spacing: var(--small-letter-spacing);
 }
 </style>

@@ -1,7 +1,9 @@
 :root {
   --main-color: rgba(225, 225, 225, 0.6);
   --accent-color: rgb(246, 200, 102);
+  --date-accent-color: rgb(225, 175, 67);
   --additional-color: rgba(225, 225, 225, 0.9);
+  --select-color: rgba(32, 32, 36,, 0.9);
   --negative-letter-spacing: -1px;
   --additiona-letter-spacing: 0.6px;
   --small-font-size: 16px;
@@ -12,6 +14,7 @@
   --normal-font-size: 25px;
   --normal-line-height: 35px;
   --normal-letter-spacing: 2.2px;
+  --bold-font-weight: 700;
   --accent-font: Bad Script;
   --button-font-size: 20px;
   --button-line-height: 24px;
@@ -23,11 +26,21 @@
     rgba(246, 200, 102, 0.9),
     rgba(254, 173, 53, 0.9)
   );
+  --button-accent-gradient: linear-gradient(
+    90deg,
+    rgba(76, 217, 100, 0.9),
+    rgba(50, 185, 73, 0.9)
+  );
   --button-glint-gradient: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0), 
     rgba(255, 255, 255, 0.29), 
     rgba(255, 255, 255, 0)
     );
-  
+  --select-main-gradient: linear-gradient(
+    90deg,
+    rgba(228, 228, 228, 0.9),
+    rgba(203, 203, 203, 0.9)
+  );
+  --select-shadow: 0 15px 6px -6px  rgba(0,0,0,0.25) inset;
 }
